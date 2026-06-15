@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 namespace LocadoraAPI.Models
+using System.Collections.Generic;
 {
     public class Cliente
     {

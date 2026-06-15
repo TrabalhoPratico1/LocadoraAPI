@@ -1,6 +1,7 @@
 ﻿using LocadoraAPI.Models;
 using Microsoft.EntityFrameworkCore;
 namespace LocadoraAPI.Data
+
 {
     public class LocadoraContext : DbContext
     {
