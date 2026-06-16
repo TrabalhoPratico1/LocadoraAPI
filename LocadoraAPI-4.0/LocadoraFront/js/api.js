@@ -1,5 +1,7 @@
 ﻿const API_BASE = "https://localhost:7158/api";
 
+// const API_BASE = "http://localhost:5049/api";
+
 async function apiFetch(endpoint, method = 'GET', body = null) {
     const options = {
         method: method,
@@ -7,10 +9,12 @@ async function apiFetch(endpoint, method = 'GET', body = null) {
             'Content-Type': 'application/json'
         }
     };
+
     if (body) {
         options.body = JSON.stringify(body);
     }
 
     const response = await fetch(`${API_BASE}${endpoint}`, options);
+
     return response;
 }
