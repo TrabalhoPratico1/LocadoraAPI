@@ -69,13 +69,17 @@ namespace LocadoraAPI.Controllers
 
         // POST: api/Fabricantes
         [HttpPost]
-        public async Task<ActionResult<Fabricante>> PostFabricante(Fabricante fabricante)
-        {
-            _context.Fabricantes.Add(fabricante);
-            await _context.SaveChangesAsync();
+public async Task<ActionResult<Fabricante>> PostFabricante(Fabricante fabricante)
+{
+    fabricante.Id = 0;
 
-            return CreatedAtAction("GetFabricante", new { id = fabricante.Id }, fabricante);
-        }
+    _context.Fabricantes.Add(fabricante);
+
+    await _context.SaveChangesAsync();
+
+    return CreatedAtAction(nameof(GetFabricante),
+        new { id = fabricante.Id }, fabricante);
+}
 
         // DELETE: api/Fabricantes/5
         [HttpDelete("{id}")]

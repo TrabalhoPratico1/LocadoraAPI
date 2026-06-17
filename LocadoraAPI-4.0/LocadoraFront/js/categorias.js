@@ -52,23 +52,37 @@ function preencherTabela(lista) {
 
 async function salvarCategoria() {
 
+    const nome = document.getElementById("nome").value;
+    const descricao = document.getElementById("descricao").value;
+
+    console.log("Nome:", nome);
+    console.log("Descricao:", descricao);
+
     const categoria = {
-
-        nome: document.getElementById("nome").value,
-
-        descricao: document.getElementById("descricao").value
+        nome: nome,
+        descricao: descricao
     };
 
-    const response =
-        await apiFetch('/Categorias','POST',categoria);
+    console.log(categoria);
 
-    if(response.ok){
+    const response =
+        await apiFetch('/Categorias', 'POST', categoria);
+
+    if (response.ok) {
 
         alert("Categoria cadastrada!");
 
         limparFormulario();
 
         listarCategorias();
+
+    } else {
+
+        const erro = await response.text();
+
+        console.error(erro);
+
+        alert(erro);
     }
 }
 

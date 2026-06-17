@@ -52,6 +52,9 @@ async function listarVeiculos() {
     veiculos =
         await response.json();
 
+    console.log("VEICULOS:");
+    console.log(veiculos);
+
     preencherTabela(veiculos);
 }
 
@@ -77,9 +80,9 @@ function preencherTabela(lista) {
 
                 <td>${v.quilometragem}</td>
 
-                <td>${v.fabricante.nome}</td>
+               <td>${v.fabricante ? v.fabricante.nome : 'Sem fabricante'}</td>
 
-                <td>${v.categoria.nome}</td>
+            <td>${v.categoria ? v.categoria.nome : 'Sem categoria'}</td>
 
                 <td>
 
@@ -117,45 +120,30 @@ function preencherTabela(lista) {
 async function salvarVeiculo() {
 
     const veiculo = {
+    modelo: document.getElementById("modelo").value,
+    anoFabricacao: parseInt(document.getElementById("ano").value),
+    placa: document.getElementById("placa").value,
+    quilometragem: parseInt(document.getElementById("quilometragem").value),
+    disponivel: true,
+    fabricanteId: parseInt(document.getElementById("fabricante").value),
+    categoriaId: parseInt(document.getElementById("categoria").value)
+};
+const response =
+    await apiFetch('/Veiculos', 'POST', veiculo);
 
-        modelo: document.getElementById("modelo").value,
+if (response.ok) {
 
-        anoFabricacao: parseInt(
-            document.getElementById("ano").value
-        ),
+    alert("Veículo cadastrado!");
 
-        placa: document.getElementById("placa").value,
+} else {
 
-        quilometragem: parseInt(
-            document.getElementById("quilometragem").value
-        ),
+    const erro = await response.text();
 
-        disponivel: true,
+    console.log("ERRO API:");
+    console.log(erro);
 
-        fabricanteId: parseInt(
-            document.getElementById("fabricante").value
-        ),
-
-        categoriaId: parseInt(
-            document.getElementById("categoria").value
-        )
-    };
-
-    const response =
-        await apiFetch('/Veiculos','POST',veiculo);
-
-    if(response.ok){
-
-        alert("Veículo cadastrado!");
-
-        limparFormulario();
-
-        listarVeiculos();
-
-    }else{
-
-        alert("Erro ao cadastrar.");
-    }
+    alert(erro);
+}
 }
 
 async function excluirVeiculo(id){

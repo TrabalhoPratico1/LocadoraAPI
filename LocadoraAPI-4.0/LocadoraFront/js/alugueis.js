@@ -65,9 +65,9 @@ function preencherTabela() {
 
                 <td>${a.id}</td>
 
-                <td>${a.cliente.nome}</td>
+               <td>${a.cliente ? a.cliente.nome : a.clienteId}</td>
 
-                <td>${a.veiculo.modelo}</td>
+            <td>${a.veiculo ? a.veiculo.modelo : a.veiculoId}</td>
 
                 <td>
                     ${new Date(a.dataInicio)

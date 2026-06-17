@@ -1,56 +1,49 @@
 let clientes = [];
 
+window.onload = listarClientes;
+
 async function listarClientes() {
+    try {
+        const response = await apiFetch('/Clientes');
 
-    const response = await apiFetch('/Clientes');
+        if (!response.ok) throw new Error("Erro ao listar clientes");
 
-    clientes = await response.json();
+        clientes = await response.json();
 
-    preencherTabela(clientes);
+        preencherTabela(clientes);
+
+    } catch (error) {
+        console.error(error);
+        alert("Erro ao carregar clientes");
+    }
 }
 
 function preencherTabela(lista) {
 
-    const tabela =
-        document.getElementById("tabelaClientes");
-
+    const tabela = document.getElementById("tabelaClientes");
     tabela.innerHTML = "";
 
     lista.forEach(cliente => {
 
         tabela.innerHTML += `
             <tr>
-
                 <td>${cliente.id}</td>
-
                 <td>${cliente.nome}</td>
-
                 <td>${cliente.cpf}</td>
-
                 <td>${cliente.email}</td>
+                <td>R$ ${(Number(cliente.saldo || 0)).toFixed(2)}</td>
 
                 <td>
-                    R$ ${cliente.saldo.toFixed(2)}
-                </td>
-
-                <td>
-
                     <button class="btn btn-warning btn-sm"
                         onclick="editarCliente(${cliente.id})">
-
                         Editar
-
                     </button>
 
                     <button class="btn btn-danger btn-sm"
                         onclick="excluirCliente(${cliente.id})">
-
                         Excluir
-
                     </button>
-
                 </td>
-
             </tr>
         `;
     });
@@ -58,103 +51,100 @@ function preencherTabela(lista) {
 
 async function salvarCliente() {
 
-    const cliente = {
+    try {
 
-        nome: document.getElementById("nome").value,
+        const cliente = {
+            nome: document.getElementById("nome").value,
+            cpf: document.getElementById("cpf").value,
+            email: document.getElementById("email").value,
+            saldo: Number(document.getElementById("saldo").value || 0)
+        };
 
-        cpf: document.getElementById("cpf").value,
+        const response =
+            await apiFetch('/Clientes', 'POST', cliente);
 
-        email: document.getElementById("email").value,
+        if (!response.ok) {
 
-        saldo: parseFloat(
-            document.getElementById("saldo").value
-        )
-    };
+            const erro = await response.text();
 
-    const response =
-        await apiFetch('/Clientes', 'POST', cliente);
+            console.error(erro);
 
-    if (response.ok) {
+            alert(erro);
 
-        alert("Cliente cadastrado!");
+            return;
+        }
+
+        alert("Cliente cadastrado com sucesso!");
 
         limparFormulario();
 
         listarClientes();
 
-    } else {
+    } catch (error) {
 
-        alert("Erro ao cadastrar.");
+        console.error(error);
+
+        alert("Erro ao cadastrar cliente");
     }
 }
 
 async function excluirCliente(id) {
 
-    if (!confirm("Deseja excluir?")) {
+    if (!confirm("Deseja excluir?")) return;
 
-        return;
-    }
+    try {
+        const response = await apiFetch(`/Clientes/${id}`, 'DELETE');
 
-    const response =
-        await apiFetch(`/Clientes/${id}`, 'DELETE');
-
-    if (response.ok) {
+        if (!response.ok) throw new Error();
 
         alert("Cliente excluído!");
-
         listarClientes();
 
-    } else {
-
-        alert("Erro ao excluir.");
+    } catch (error) {
+        console.error(error);
+        alert("Erro ao excluir");
     }
 }
 
 function editarCliente(id) {
 
-    const cliente =
-        clientes.find(c => c.id === id);
+    const cliente = clientes.find(c => c.id === id);
 
-    document.getElementById("nome").value =
-        cliente.nome;
+    document.getElementById("nome").value = cliente.nome;
+    document.getElementById("cpf").value = cliente.cpf;
+    document.getElementById("email").value = cliente.email;
+    document.getElementById("saldo").value = cliente.saldo;
 
-    document.getElementById("cpf").value =
-        cliente.cpf;
+    const btn = document.getElementById("btnSalvar");
 
-    document.getElementById("email").value =
-        cliente.email;
+    btn.innerText = "Atualizar";
 
-    document.getElementById("saldo").value =
-        cliente.saldo;
-
-    document.querySelector(".btn-primary")
-        .innerText = "Atualizar";
-
-    document.querySelector(".btn-primary")
-        .onclick = () => atualizarCliente(id);
+    btn.onclick = () => atualizarCliente(id);
 }
 
 async function atualizarCliente(id) {
 
-    const cliente = {
+    try {
 
-        id: id,
+        const cliente = {
+            id: id,
+            nome: document.getElementById("nome").value,
+            cpf: document.getElementById("cpf").value,
+            email: document.getElementById("email").value,
+            saldo: Number(document.getElementById("saldo").value || 0)
+        };
 
-        nome: document.getElementById("nome").value,
+        const response =
+            await apiFetch(`/Clientes/${id}`, 'PUT', cliente);
 
-        cpf: document.getElementById("cpf").value,
+        if (!response.ok) {
 
-        email: document.getElementById("email").value,
+            const erro = await response.text();
 
-        saldo: parseFloat(
-            document.getElementById("saldo").value
-        )
-    };
+            alert(erro);
 
-    const response =
-        await apiFetch(`/Clientes/${id}`, 'PUT', cliente);
-
-    if (response.ok) {
+            return;
+        }
 
         alert("Cliente atualizado!");
 
@@ -162,39 +152,30 @@ async function atualizarCliente(id) {
 
         listarClientes();
 
-        const botao =
-            document.querySelector(".btn-primary");
+        const btn =
+            document.getElementById("btnSalvar");
 
-        botao.innerText = "Salvar";
+        btn.innerText = "Salvar";
 
-        botao.onclick = salvarCliente;
+        btn.onclick = salvarCliente;
 
-    } else {
+    } catch (error) {
 
-        alert("Erro ao atualizar.");
+        console.error(error);
+
+        alert("Erro ao atualizar cliente");
     }
 }
 
 function filtrarClientes() {
 
-    const nome =
-        document.getElementById("filtroNome")
-            .value.toLowerCase();
+    const nome = document.getElementById("filtroNome").value.toLowerCase();
+    const cpf = document.getElementById("filtroCpf").value;
 
-    const cpf =
-        document.getElementById("filtroCpf")
-            .value;
-
-    const filtrados =
-        clientes.filter(cliente =>
-
-            cliente.nome.toLowerCase()
-                .includes(nome)
-
-            &&
-
-            cliente.cpf.includes(cpf)
-        );
+    const filtrados = clientes.filter(cliente =>
+        cliente.nome.toLowerCase().includes(nome) &&
+        cliente.cpf.includes(cpf)
+    );
 
     preencherTabela(filtrados);
 }
@@ -202,12 +183,11 @@ function filtrarClientes() {
 function limparFormulario() {
 
     document.getElementById("nome").value = "";
-
     document.getElementById("cpf").value = "";
-
     document.getElementById("email").value = "";
-
     document.getElementById("saldo").value = "";
-}
 
-listarClientes();
+    const btn = document.getElementById("btnSalvar");
+    btn.innerText = "Salvar";
+    btn.onclick = salvarCliente;
+}

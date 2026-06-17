@@ -1,6 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
-namespace LocadoraAPI.Models
 using System.Collections.Generic;
+
+namespace LocadoraAPI.Models
 {
     public class Cliente
     {
@@ -21,7 +22,6 @@ using System.Collections.Generic;
         [EmailAddress]
         public string Email { get; set; }
 
-        // Navigation property: Um cliente pode ter vários aluguéis
-        public virtual ICollection<Aluguel> Alugueis { get; set; }
+        public virtual ICollection<Aluguel> Alugueis { get; set; } = new List<Aluguel>();
     }
 }

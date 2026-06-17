@@ -1,6 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
-namespace LocadoraAPI.Models
 using System.Collections.Generic;
+
+namespace LocadoraAPI.Models
 {
     public class Categoria
     {
@@ -14,7 +15,7 @@ using System.Collections.Generic;
         [StringLength(200)]
         public string Descricao { get; set; }
 
-        // Navigation property: Uma categoria pode ter vários veículos
         public virtual ICollection<Veiculo> Veiculos { get; set; }
+            = new List<Veiculo>();
     }
 }

@@ -69,13 +69,17 @@ namespace LocadoraAPI.Controllers
 
         // POST: api/Categorias
         [HttpPost]
-        public async Task<ActionResult<Categoria>> PostCategoria(Categoria categoria)
-        {
-            _context.Categorias.Add(categoria);
-            await _context.SaveChangesAsync();
+public async Task<ActionResult<Categoria>> PostCategoria(Categoria categoria)
+{
+    categoria.Id = 0;
 
-            return CreatedAtAction("GetCategoria", new { id = categoria.Id }, categoria);
-        }
+    _context.Categorias.Add(categoria);
+
+    await _context.SaveChangesAsync();
+
+    return CreatedAtAction(nameof(GetCategoria),
+        new { id = categoria.Id }, categoria);
+}
 
         // DELETE: api/Categorias/5
         [HttpDelete("{id}")]

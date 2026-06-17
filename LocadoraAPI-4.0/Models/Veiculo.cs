@@ -1,6 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Collections.Generic;
+using System.Text.Json.Serialization;
+
 namespace LocadoraAPI.Models
 {
     public class Veiculo
@@ -24,14 +25,16 @@ namespace LocadoraAPI.Models
 
         public bool Disponivel { get; set; } = true;
 
-        // Chave estrangeira para Fabricante
         [ForeignKey("Fabricante")]
         public int FabricanteId { get; set; }
-        public virtual Fabricante Fabricante { get; set; }
 
-        // Chave estrangeira para Categoria
+        [JsonIgnore]
+       public virtual Fabricante? Fabricante { get; set; }
+
         [ForeignKey("Categoria")]
         public int CategoriaId { get; set; }
-        public virtual Categoria Categoria { get; set; }
+
+        [JsonIgnore]
+        public virtual Categoria? Categoria { get; set; }
     }
 }

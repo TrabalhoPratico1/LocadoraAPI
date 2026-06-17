@@ -17,35 +17,41 @@ namespace LocadoraAPI.Controllers
             _context = context;
         }
 
-        // GET: api/Veiculos
-        // ATUALIZADO: Agora aceita parâmetros de filtro via Query String
-        // Exemplo: GET /api/Veiculos?modelo=Onix&placa=ABC
+        
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Veiculo>>> GetVeiculos([FromQuery] string? modelo, [FromQuery] string? placa)
+public async Task<IActionResult> GetVeiculos()
+{
+    var veiculos = await _context.Veiculos
+        .Include(v => v.Fabricante)
+        .Include(v => v.Categoria)
+        .Select(v => new
         {
-            // Transforma a tabela em uma consulta montável (AsQueryable)
-            var query = _context.Veiculos
-                .Include(v => v.Fabricante)
-                .Include(v => v.Categoria)
-                .AsQueryable();
+            v.Id,
+            v.Modelo,
+            v.AnoFabricacao,
+            v.Placa,
+            v.Quilometragem,
+            v.Disponivel,
+            v.FabricanteId,
+            v.CategoriaId,
 
-            // Aplica o filtro de Modelo se foi informado
-            if (!string.IsNullOrEmpty(modelo))
+            Fabricante = new
             {
-                query = query.Where(v => v.Modelo.Contains(modelo));
-            }
+                v.Fabricante.Id,
+                v.Fabricante.Nome
+            },
 
-            // Aplica o filtro de Placa se foi informado
-            if (!string.IsNullOrEmpty(placa))
+            Categoria = new
             {
-                query = query.Where(v => v.Placa.Contains(placa));
+                v.Categoria.Id,
+                v.Categoria.Nome
             }
+        })
+        .ToListAsync();
 
-            // Executa a consulta no banco
-            return await query.ToListAsync();
-        }
+    return Ok(veiculos);
+}
 
-        // GET: api/Veiculos/5
         [HttpGet("{id}")]
         public async Task<ActionResult<Veiculo>> GetVeiculo(int id)
         {
@@ -59,20 +65,29 @@ namespace LocadoraAPI.Controllers
             return veiculo;
         }
 
-        // POST: api/Veiculos
-        [HttpPost]
-        public async Task<ActionResult<Veiculo>> PostVeiculo(Veiculo veiculo)
-        {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
+        
+       [HttpPost]
+public async Task<ActionResult<Veiculo>> PostVeiculo(Veiculo veiculo)
+{
+    var fabricante =
+        await _context.Fabricantes.FindAsync(veiculo.FabricanteId);
 
-            _context.Veiculos.Add(veiculo);
-            await _context.SaveChangesAsync();
+    if (fabricante == null)
+        return BadRequest("Fabricante inválido.");
 
-            return CreatedAtAction(nameof(GetVeiculo), new { id = veiculo.Id }, veiculo);
-        }
+    var categoria =
+        await _context.Categorias.FindAsync(veiculo.CategoriaId);
+
+    if (categoria == null)
+        return BadRequest("Categoria inválida.");
+
+    _context.Veiculos.Add(veiculo);
+
+    await _context.SaveChangesAsync();
+
+    return CreatedAtAction(nameof(GetVeiculo),
+        new { id = veiculo.Id }, veiculo);
+}
 
         // PUT: api/Veiculos/5
         [HttpPut("{id}")]
@@ -101,7 +116,7 @@ namespace LocadoraAPI.Controllers
                 }
             }
 
-            return NoContent(); // Sucesso, sem conteúdo para retornar
+            return NoContent(); 
         }
 
         // DELETE: api/Veiculos/5

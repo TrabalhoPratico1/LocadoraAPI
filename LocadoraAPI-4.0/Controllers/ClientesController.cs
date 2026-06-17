@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using LocadoraAPI.Data;
 using LocadoraAPI.Models;
+using LocadoraAPI.DTOs;
 
 namespace LocadoraAPI.Controllers
 {
@@ -20,19 +21,21 @@ namespace LocadoraAPI.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Cliente>>> GetClientes()
         {
-            return await _context.Clientes.ToListAsync();
+            return await _context.Clientes
+                .AsNoTracking()
+                .ToListAsync();
         }
 
         // GET: api/Clientes/5
         [HttpGet("{id}")]
         public async Task<ActionResult<Cliente>> GetCliente(int id)
         {
-            var cliente = await _context.Clientes.FindAsync(id);
+            var cliente = await _context.Clientes
+                .AsNoTracking()
+                .FirstOrDefaultAsync(x => x.Id == id);
 
             if (cliente == null)
-            {
                 return NotFound();
-            }
 
             return cliente;
         }
@@ -42,39 +45,39 @@ namespace LocadoraAPI.Controllers
         public async Task<IActionResult> PutCliente(int id, Cliente cliente)
         {
             if (id != cliente.Id)
-            {
-                return BadRequest();
-            }
+                return BadRequest("ID inválido");
 
-            _context.Entry(cliente).State = EntityState.Modified;
+            var clienteExistente = await _context.Clientes.FindAsync(id);
 
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!ClienteExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
+            if (clienteExistente == null)
+                return NotFound();
+
+            clienteExistente.Nome = cliente.Nome;
+            clienteExistente.CPF = cliente.CPF;
+            clienteExistente.Email = cliente.Email;
+            clienteExistente.Saldo = cliente.Saldo;
+
+            await _context.SaveChangesAsync();
 
             return NoContent();
         }
 
         // POST: api/Clientes
         [HttpPost]
-        public async Task<ActionResult<Cliente>> PostCliente(Cliente cliente)
+        public async Task<ActionResult<Cliente>> PostCliente(ClienteCreateDTO dto)
         {
+            var cliente = new Cliente
+            {
+                Nome = dto.Nome,
+                CPF = dto.CPF,
+                Email = dto.Email,
+                Saldo = dto.Saldo
+            };
+
             _context.Clientes.Add(cliente);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetCliente", new { id = cliente.Id }, cliente);
+            return CreatedAtAction(nameof(GetCliente), new { id = cliente.Id }, cliente);
         }
 
         // DELETE: api/Clientes/5
@@ -82,20 +85,14 @@ namespace LocadoraAPI.Controllers
         public async Task<IActionResult> DeleteCliente(int id)
         {
             var cliente = await _context.Clientes.FindAsync(id);
+
             if (cliente == null)
-            {
                 return NotFound();
-            }
 
             _context.Clientes.Remove(cliente);
             await _context.SaveChangesAsync();
 
             return NoContent();
-        }
-
-        private bool ClienteExists(int id)
-        {
-            return _context.Clientes.Any(e => e.Id == id);
         }
     }
 }

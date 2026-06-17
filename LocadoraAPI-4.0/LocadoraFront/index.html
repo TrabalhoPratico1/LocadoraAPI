@@ -62,30 +62,43 @@
 
 </div>
 
-
 <script src="js/api.js"></script>
 
 <script>
 async function carregarDashboard() {
 
-    // Clientes
-    const clientesResponse = await apiFetch('/Clientes');
-    const clientes = await clientesResponse.json();
+    const clientes =
+        await (await apiFetch('/Clientes')).json();
+
+    const veiculos =
+        await (await apiFetch('/Veiculos')).json();
+
+    const alugueis =
+        await (await apiFetch('/Alugueis')).json();
 
     document.getElementById("totalClientes").innerText =
         clientes.length;
 
-
-    // Veículos
-    const veiculosResponse = await apiFetch('/Veiculos');
-    const veiculos = await veiculosResponse.json();
-
     document.getElementById("totalVeiculos").innerText =
         veiculos.length;
 
-carregarDashboard();
+    document.getElementById("totalAlugueis").innerText =
+        alugueis.filter(a => !a.dataDevolucaoReal).length;
 
+    let receita = 0;
+
+    alugueis.forEach(a => {
+        if (a.valorTotal)
+            receita += Number(a.valorTotal);
+    });
+
+    document.getElementById("receitaTotal").innerText =
+        "R$ " + receita.toFixed(2);
+}
+
+carregarDashboard();
 </script>
+
 
 </body>
 </html>

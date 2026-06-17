@@ -1,6 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Collections.Generic;
+using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
+
 namespace LocadoraAPI.Models
 {
     public class Aluguel
@@ -11,28 +12,30 @@ namespace LocadoraAPI.Models
         [Required]
         public DateTime DataInicio { get; set; }
 
-        public DateTime? DataDevolucaoReal { get; set; } // Nullable, pois o carro pode não ter sido devolvido ainda
+        public DateTime? DataDevolucaoReal { get; set; }
 
         [Required]
         public int QuilometragemInicial { get; set; }
 
-        public int? QuilometragemFinal { get; set; } // Nullable
+        public int? QuilometragemFinal { get; set; }
 
         [Required]
         [Column(TypeName = "decimal(18,2)")]
         public decimal ValorDiaria { get; set; }
 
         [Column(TypeName = "decimal(18,2)")]
-        public decimal? ValorTotal { get; set; } // Nullable, calculado na devolução
+        public decimal? ValorTotal { get; set; }
 
-        // Chave estrangeira para Cliente
         [ForeignKey("Cliente")]
         public int ClienteId { get; set; }
-        public virtual Cliente Cliente { get; set; }
 
-        // Chave estrangeira para Veiculo
+        [ValidateNever]
+        public virtual Cliente? Cliente { get; set; }
+
         [ForeignKey("Veiculo")]
         public int VeiculoId { get; set; }
-        public virtual Veiculo Veiculo { get; set; }
+
+        [ValidateNever]
+        public virtual Veiculo? Veiculo { get; set; }
     }
 }
