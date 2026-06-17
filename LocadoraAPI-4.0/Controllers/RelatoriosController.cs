@@ -68,7 +68,9 @@ namespace LocadoraAPI.Controllers
             var veiculos = await _context.Veiculos
                 .Include(v => v.Categoria) // JOIN com Categoria
                 .Include(v => v.Fabricante)
-                .Where(v => v.Categoria.Nome.ToLower() == nomeCategoria.ToLower() && v.Disponivel)
+                .Where(v =>
+    v.Categoria.Nome.ToLower().Contains(nomeCategoria.ToLower())
+    && v.Disponivel)
                 .ToListAsync();
 
             return Ok(veiculos);

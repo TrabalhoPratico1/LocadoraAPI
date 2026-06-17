@@ -103,6 +103,9 @@ async function buscarDisponiveis() {
 
     const dados = await response.json();
 
+    console.log("DADOS RECEBIDOS:");
+    console.log(dados);
+
     const lista =
         document.getElementById("resultadoDisponiveis");
 
@@ -112,18 +115,13 @@ async function buscarDisponiveis() {
 
         lista.innerHTML += `
             <li>
-
                 ${v.modelo}
-
                 -
-
-                ${v.fabricante.nome}
-
+                ${v.fabricante ? v.fabricante.nome : "Sem fabricante"}
             </li>
         `;
     });
 }
-
 async function buscarFaturamento() {
 
     const response =

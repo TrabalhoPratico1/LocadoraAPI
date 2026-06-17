@@ -1,6 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Text.Json.Serialization;
 
 namespace LocadoraAPI.Models
 {
@@ -28,13 +27,11 @@ namespace LocadoraAPI.Models
         [ForeignKey("Fabricante")]
         public int FabricanteId { get; set; }
 
-        [JsonIgnore]
-       public virtual Fabricante? Fabricante { get; set; }
+        public virtual Fabricante? Fabricante { get; set; }
 
         [ForeignKey("Categoria")]
         public int CategoriaId { get; set; }
 
-        [JsonIgnore]
         public virtual Categoria? Categoria { get; set; }
     }
 }
